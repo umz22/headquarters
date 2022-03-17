@@ -6,6 +6,8 @@ import {getFirestore, collection} from 'firebase/firestore';
 import { getAuth } from 'firebase/auth'
 // timestamp
 import { serverTimestamp } from "@firebase/firestore";
+// storage bucket
+import { getStorage, getDownloadURL } from "firebase/storage"; 
 
 const firebaseConfig = {
     apiKey: "AIzaSyAsICQR6O31pyo-tqr1TE45Bfja4TRKSKQ",
@@ -28,4 +30,8 @@ const auth = getAuth();
 // initialize timestamp
 const timestamp = serverTimestamp();
 
-export { db, auth, timestamp }
+// initialize storage
+const storage = getStorage();
+
+
+export { db, auth, timestamp, storage }

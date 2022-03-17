@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSignup } from '../../hooks/useSignup'
 
 // styles
 import './Signup.css'
@@ -8,10 +9,11 @@ export default function Signup() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPass, setConfirmPass] = useState('')
-  const [username, setUsername] = useState('')
+  const [displayName, setDisplayName] = useState('')
   const [thumbnail, setThumbnail] = useState(null)
   const [thumbnailError, setThumbnailError] = useState(null)
   const [passErrorMsg, setPassErrorMsg] = useState(null)
+  const { signup, isPending, error } = useSignup()
 
   const handleFileChange = (e) => {
     setThumbnail(null)
@@ -49,7 +51,7 @@ export default function Signup() {
         // console.log('passwords dont match')
     } else {
       // setPassErrorMsg('Password matched')
-      console.log(email, password, username, thumbnail)
+      signup(email, password, displayName, thumbnail)
       setPassErrorMsg('')
   }
 }
@@ -89,8 +91,8 @@ export default function Signup() {
         <span>Username:</span>
         <input
           type="text"
-          onChange={(e) => setUsername(e.target.value)}
-          value={username}
+          onChange={(e) => setDisplayName(e.target.value)}
+          value={displayName}
           required
         />
       </label>
@@ -103,7 +105,10 @@ export default function Signup() {
         />
         {thumbnailError && <div className='error'>{thumbnailError}</div>}
       </label>
-      <button className='btn'>Sign Up</button>
+      {!isPending && <button className='btn'>Sign Up</button>}
+      {isPending && <button className='btn' disabled>loading</button>}
+
+      {error && <div className="error">{error}</div>}
     </form>
   )
 }
