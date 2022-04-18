@@ -1,4 +1,4 @@
-import { onSnapshot, collection, where, query, orderBy, setDoc } from 'firebase/firestore';
+import { onSnapshot, collection, where, query, orderBy } from 'firebase/firestore';
 import { useEffect, useState, useRef } from 'react'
 import { db } from '../firebase/config'
 

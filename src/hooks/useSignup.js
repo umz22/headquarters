@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react"
-import { auth, storage } from "../firebase/config"
+import { auth, storage, db } from "../firebase/config"
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
 import { uploadBytesResumable, getDownloadURL, ref } from 'firebase/storage';
 // this useAuthContext.js hook is a 'gateway' into AuthContext.js
 import { useAuthContext } from "./useAuthContext"
+import { doc } from "firebase/firestore";
+import { setDoc } from "firebase/firestore";
 
 
 export const useSignup = () => {
@@ -23,8 +25,6 @@ export const useSignup = () => {
         // signup user:
         await createUserWithEmailAndPassword(auth, email, password)
             // upload user thumbnail
-
-
             .then((res) => {
                 console.log('user signed up:', res.user)
                 // dispatch login action
@@ -47,13 +47,23 @@ export const useSignup = () => {
                              getDownloadURL(uploadTask.snapshot.ref)
                             .then((downloadURL) => {
                                 console.log('File available at', downloadURL);
+
+                                // add display name + photoURL to user
                                 updateProfile(auth.currentUser, { displayName, photoURL: downloadURL })
+
+                                // create a user document...
+                                // 1. add a document to a collection called 'users' with the id=res.user.id
+                                let uid = res.user.uid
+                                // 2. setDoc to update the following properties of the user upon logging in/signing in
+                                setDoc(doc(db,'users', uid), { 
+                                    online: true,
+                                    displayName: displayName,
+                                    photoURL: downloadURL
+                                })
+
                             })
                         }
-
                     )
-
-
                     setIsPending(false)
                     setError(null)
                 }
@@ -64,7 +74,6 @@ export const useSignup = () => {
                     setIsPending(false)
                 }
             })
-
     }
 
     // cleanup function

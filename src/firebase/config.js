@@ -1,13 +1,13 @@
 // Firebase
 import { initializeApp} from 'firebase/app';
 // Firestore services
-import {getFirestore, collection} from 'firebase/firestore';
+import {getFirestore } from 'firebase/firestore';
 // user auth
 import { getAuth } from 'firebase/auth'
 // timestamp
 import { serverTimestamp } from "@firebase/firestore";
 // storage bucket
-import { getStorage, getDownloadURL } from "firebase/storage"; 
+import { getStorage } from "firebase/storage"; 
 
 const firebaseConfig = {
     apiKey: "AIzaSyAsICQR6O31pyo-tqr1TE45Bfja4TRKSKQ",
