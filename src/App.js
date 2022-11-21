@@ -28,7 +28,7 @@ function App() {
           which causes errors*/}
           {user && <Sidebar />}
           <div className='container'>
-            <Navbar />
+            <Navbar/>
             <Routes>
               {/* Dashboard */}
               {!user && <Route path='/' element={<Login />} />}

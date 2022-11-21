@@ -1,6 +1,6 @@
 import { useReducer, useEffect, useState } from "react"
 import { db, timestamp } from "../firebase/config"
-import { collection, deleteDoc } from 'firebase/firestore'
+import { collection, deleteDoc, updateDoc, doc } from 'firebase/firestore'
 import { addDoc } from '@firebase/firestore';
 
 let initialState = {
@@ -19,6 +19,8 @@ const firestoreReducer = (state, action) => {
     case "ADDED_DOCUMENT":
       return {success: true, isPending: false, error: null, document: action.payload}
     case "DELETED_DOCUMENT":
+      return {success: true, isPending: false, error: null, document: action.payload}
+    case "UPDATED_DOCUMENT":
       return {success: true, isPending: false, error: null, document: action.payload}
     default:
       return state
@@ -54,12 +56,29 @@ export const useFirestore = (collections) => {
 
   }
 
-  // delete a document
-  const deleteDocument = async (doc) => {
+  // update a document
+  const updateDocument = async (id, updates) => {
     dispatch({ type: 'IS_PENDING'})
 
     try {
-      const deletedDocument = await deleteDoc(doc(ref, doc))
+      let updateRef = doc(db, collections, id)
+      const updatedDocument = await updateDoc(updateRef, updates)
+      dispatchIfNotCancelled({ type: 'UPDATED_DOCUMENT', payload: updatedDocument })
+      
+      return updatedDocument
+    }
+    catch (err) {
+      dispatchIfNotCancelled({ type: 'ERROR', payload: err.message })
+      return null
+    }
+  }
+
+  // delete a document
+  const deleteDocument = async (id) => {
+    dispatch({ type: 'IS_PENDING'})
+
+    try {
+      const deletedDocument = await deleteDoc(doc(db, collections, id))
       dispatchIfNotCancelled({ type: 'DELETED_DOCUMENT', payload: deletedDocument })
     }
     catch (err) {
@@ -73,6 +92,6 @@ export const useFirestore = (collections) => {
     return () => setIsCancelled(true)
   }, [])
 
-  return { addDocument, deleteDocument, response }
+  return { addDocument, deleteDocument, updateDocument, response }
 
 }

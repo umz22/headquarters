@@ -8,7 +8,7 @@ import { doc } from "firebase/firestore";
 import { setDoc } from "firebase/firestore";
 
 
-export const useSignup = () => {
+export const useEmailVerification = () => {
     const [isCancelled, setIsCancelled] = useState(false)
     const [error, setError] = useState(null)
     const [isPending, setIsPending] = useState(false)
@@ -28,7 +28,7 @@ export const useSignup = () => {
             .then((res) => {
                 console.log('user signed up:', res.user)
                 // dispatch login action
-                dispatch({ type: 'LOGIN', payload: res.user })
+                // dispatch({ type: 'LOGIN', payload: res.user })
                 if (!isCancelled) {
                     const uploadPath = `thumbnails/${res.user.uid}/${thumbnail.name}`
                     const storageRef = ref(storage, uploadPath)

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useSignup } from '../../hooks/useSignup'
+import { useEmailVerification } from '../../hooks/useEmailVerification'
 
 // styles
 import './Signup.css'

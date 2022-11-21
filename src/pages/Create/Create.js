@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import Select from 'react-select'
 import { Timestamp } from 'firebase/firestore'
 import { useNavigate } from 'react-router-dom';
+import ProjectDetails from './ProjectDetails';
 
 // hooks
 import { useCollection } from '../../hooks/useCollection'
 import { useAuthContext } from '../../hooks/useAuthContext'
 import { useFirestore } from '../../hooks/useFirestore'
+
 
 // styles
 import './Create.css'
@@ -27,17 +29,17 @@ export default function Create() {
   const [category, setCategory] = useState('')
   const [assignedUsers, setAssignedUsers] = useState([])
   const [formError, setFormError] = useState(null)
-
+  
   const navigate = useNavigate();
   const { user } = useAuthContext()
   const { addDocument, response } = useFirestore('projects')
-
   const { documents } = useCollection('users')
   // we have to convert the set of "documents" data from the useCollection
   // into an array (below) so that we can map that array into the 
   // "Assign to" drop down menu
   const [users, setUsers] = useState([])
-  // this useEffect first fires once when the 'documents' are 'null,
+
+  // this useEffect first fires once when the documents are 'null',
   // then fires again once the documents have been fetched from the back end
   useEffect(() => {
     if(documents) {
@@ -68,32 +70,45 @@ export default function Create() {
       return { 
         displayName: u.value.displayName, 
         photoURL: u.value.photoURL,
-        id: u.value.id
+        id: u.value.id,
       }
     })
+
+    // These are all the user Ids associated with the given project. Firestore has a tough time
+    // reading sub categories within an array, so we create a simpler array consisting only of 
+    // user IDs (assigned users + the user.uid that created it). We then use this simple array
+    // to write out firestore.rules and the query rules
+    const assignedUsersIds = assignedUsersList.map(users => (
+      users.id
+  ))
+      assignedUsersIds.push(user.uid)
+      console.log(assignedUsersIds)
+
 
     const createdBy = {
       // these values are grabbed from the user property from useAuthContext
       displayName: user.displayName, 
       photoURL: user.photoURL,
-      id: user.uid
+      id: user.uid,
     }
-    
+
+
+  
     // this is the document that will ultimately get saved to the firestore db
     const project = {
       name: name,
       details: details,
       category: category.value,
-      // we create the timestamp in the firebase config:
       dueDate: Timestamp.fromDate(new Date(dueDate)),
       // later we are going to allow users to comment on posts, 
       // so this needs to be blank to start
       comments: [],
       createdBy: createdBy,
-      assignedUsersList
+      assignedUsersList,
+      assignedUsersIds 
     }
-    
-    // console.log(project)
+
+
     await addDocument(project)
     // this response.error is from useFirestore to track the error dispatch
     if (!response.error) {
@@ -117,16 +132,10 @@ export default function Create() {
           />
         </label>
 
-        {/* Project Details */}
-        <label>
-          <span>Project Details:</span>
-          <textarea
-            required
-            type="text"
-            onChange={(e) => setDetails(e.target.value)}
-            value={details}
-          ></textarea>
-        </label>
+      <ProjectDetails
+        setDetails={setDetails}
+        details={details}
+      />
 
         {/* Project Due Date */}
         <label>
